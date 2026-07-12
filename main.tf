@@ -116,12 +116,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
     azurerm_network_interface.nic.id,
   ]
 
-  # --- NEW SSH AUTHENTICATION REPLACES THE PASSWORD LINES ---
   disable_password_authentication = true
 
   admin_ssh_key {
     username   = "azureuser"
-    public_key = file("${path.module}/devops-key.pub")
+    public_key = var.ssh_public_key
   }
 
   # Install Docker and Docker Compose on startup via custom data script
@@ -152,4 +151,9 @@ resource "azurerm_linux_virtual_machine" "vm" {
 output "vm_public_ip" {
   value       = azurerm_linux_virtual_machine.vm.public_ip_address
   description = "The public IP of your Azure virtual machine"
+}
+
+variable "ssh_public_key" {
+  type        = string
+  description = "The public SSH key injected from GitHub Secrets"
 }
