@@ -157,3 +157,9 @@ variable "ssh_public_key" {
   type        = string
   description = "The public SSH key injected from GitHub Secrets"
 }
+
+# Attach your Network Security Group directly to your Subnet
+resource "azurerm_subnet_network_security_group_association" "subnet_link" {
+  subnet_id                 = azurerm_subnet.subnet.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
