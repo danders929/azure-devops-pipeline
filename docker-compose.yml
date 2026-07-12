@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./app:/usr/share/nginx/html
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: devops_user
+      POSTGRES_PASSWORD: supersecretpassword
+      POSTGRES_DB: production_db
