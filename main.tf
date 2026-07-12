@@ -97,23 +97,30 @@ resource "azurerm_network_interface_security_group_association" "connect" {
   network_security_group_id = azurerm_network_security_group.nsg.id
 }
 
-# 6. Launch Free Tier Eligible Linux Virtual Machine
+# 6. Launch Linux Virtual Machine using your specific Spot Instance SKU
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "devops-vm"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  size                = "Standard_B1s" # Free Tier eligible size
+  
+  # Set your exact target hardware size
+  size                = "Standard_DC1ds_v3" 
   admin_username      = "azureuser"
+
+  # --- ENABLING AZURE SPOT PROPERTIES ---
+  priority        = "Spot"
+  eviction_policy = "Delete" # Cleanly drops the node allocation if Azure needs capacity
+  max_price       = -1       # -1 means you agree to match the current spot price market rate
 
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
 
-  admin_password                  = "P@ssword12345!" # Use SSH keys or secrets in production
+  admin_password                  = "P@ssword12345!" 
   disable_password_authentication = false
 
   # Install Docker and Docker Compose on startup via custom data script
-  custom_data = base64encode(<<-EOF
+    custom_data = base64encode(<<-EOF
               #!/bin/bash
               apt-get update -y
               apt-get install -y docker.io docker-compose
@@ -127,10 +134,11 @@ resource "azurerm_linux_virtual_machine" "vm" {
     storage_account_type = "Standard_LRS"
   }
 
+  # Target your desired Gen 2 x64 OS Image
   source_image_reference {
     publisher = "Canonical"
     offer     = "0001-com-ubuntu-server-jammy"
-    sku       = "22_04-lts"
+    sku       = "22_04-lts-gen2" 
     version   = "latest"
   }
 }
