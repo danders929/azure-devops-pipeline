@@ -109,18 +109,23 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   # --- ENABLING AZURE SPOT PROPERTIES ---
   priority        = "Spot"
-  eviction_policy = "Delete" # Cleanly drops the node allocation if Azure needs capacity
-  max_bid_price       = -1       # -1 means you agree to match the current spot price market rate
+  eviction_policy = "Delete" 
+  max_bid_price   = -1       
 
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
 
-  admin_password                  = "P@ssword12345!" 
-  disable_password_authentication = false
+  # --- NEW SSH AUTHENTICATION REPLACES THE PASSWORD LINES ---
+  disable_password_authentication = true
+
+  admin_ssh_key {
+    username   = "azureuser"
+    public_key = file("${path.module}/devops-key.pub")
+  }
 
   # Install Docker and Docker Compose on startup via custom data script
-    custom_data = base64encode(<<-EOF
+  custom_data = base64encode(<<-EOF
               #!/bin/bash
               apt-get update -y
               apt-get install -y docker.io docker-compose
