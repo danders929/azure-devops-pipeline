@@ -110,7 +110,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   # --- ENABLING AZURE SPOT PROPERTIES ---
   priority        = "Spot"
   eviction_policy = "Delete" # Cleanly drops the node allocation if Azure needs capacity
-  max_price       = -1       # -1 means you agree to match the current spot price market rate
+  max_bid_price       = -1       # -1 means you agree to match the current spot price market rate
 
   network_interface_ids = [
     azurerm_network_interface.nic.id,
