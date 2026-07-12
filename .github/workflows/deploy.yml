@@ -44,29 +44,11 @@ jobs:
           ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
           ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
           TF_VAR_ssh_public_key: ${{ secrets.VM_SSH_PUB_KEY }} # <-- ADD THIS LINE
-        run: terraform apply -auto-approve
+        run: terraform destroy -auto-approve
         
       - name: Extract Public IP Address
         id: get_ip
         run: |
           echo "VM_IP=$(terraform output -raw vm_public_ip)" >> $GITHUB_ENV
 
-      - name: Copy Docker Files to Azure VM
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ env.VM_IP }}
-          username: azureuser
-          key: ${{ secrets.VM_SSH_KEY }}
-          source: "docker-compose.yml,app/index.html"
-          target: "/home/azureuser/"
-
-      - name: Execute Multi-Container Multi-Tier App Cluster
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ env.VM_IP }}
-          username: azureuser
-          key: ${{ secrets.VM_SSH_KEY }}
-          script: |
-            cd /home/azureuser
-            sudo docker-compose down --remove-orphans
-            sudo docker-compose up -d
+     
