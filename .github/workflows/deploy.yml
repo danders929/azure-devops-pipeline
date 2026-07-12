@@ -68,4 +68,5 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             cd /home/azureuser
-            sudo docker compose up -d --force-recreate
+            sudo docker-compose down --remove-orphans
+            sudo docker-compose up -d
